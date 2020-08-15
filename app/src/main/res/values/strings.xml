@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">PopularMovies1</string>
+    <string name="error_message">Failed to get results. Please try again. </string>
+    <!-- details -->
+    <string name="detail_title">Matrix</string>
+    <string name="detail_plot_synopsis">A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.</string>
+    <string name="detail_rate">5.0</string>
+    <string name="detail_release_date">1999 holy moly</string>
+    <!-- menu -->
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="action_about">About</string>
+    <!--detail-->
+    <string name="label_rate">Rate: </string>
+    <string name="label_release_date">Release Date: </string>
+    <string name="label_overview">Overview: </string>
+    <!-- about -->
+    <string name="credits_title">About: Popular Movies Stage 1 </string>
+    <string name="credits_program">Android Developer Nanodegree by Udacity and Google </string>
+    <string name="credits_libraries">I used Butter Knife library from Jake Wharton and Picasso library from Square. </string>
+    <string name="credits_text">Loading and error images made by Freepik from FlatIcon. </string>
+    <string name="credits_me">This app made by Kirit Bhatt while using lot of learning resources from Udacity Android Developer Training </string>
+    <string name="credits_mentor"> Thank you to Udacity Android Developer Nanaodegree Team </string>
+    <string name="credits_team">Thank you and enjoy! </string>
+    <string name="contentDescription">Popular Movies</string>
+</resources>
