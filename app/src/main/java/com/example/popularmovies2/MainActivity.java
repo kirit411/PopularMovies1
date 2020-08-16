@@ -1,9 +1,11 @@
-package com.example.popularmovies1;
+package com.example.popularmovies2;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,9 +16,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.popularmovies1.model.Movie;
-import com.example.popularmovies1.utilities.NetworkUtils;
-import com.example.popularmovies1.utilities.TheMovieDbJsonUtils;
+import com.example.popularmovies2.model.Movie;
+import com.example.popularmovies2.utilities.NetworkUtils;
+import com.example.popularmovies2.utilities.TheMovieDbJsonUtils;
 
 import java.net.URL;
 
@@ -26,8 +28,11 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
     private RecyclerView mRecyclerView;
+    private static Bundle mBundleRecyclerViewState;
+    private final String KEY_RECYCLER_STATE = "recycler_state";
     private MovieAdapter mMovieAdapter;
     private Movie[] jsonMovieData;
+    private SQLiteDatabase mDb;
 
     @BindView(R.id.tv_error_message)
     TextView mErrorMessage;
@@ -35,10 +40,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     ProgressBar mLoadingIndicator;
 
     String query = "popular";
+    private static final String LIFECYCLE_CALLBACKS_TEXT_KEY = "callbacks";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            query = savedInstanceState.getString(LIFECYCLE_CALLBACKS_TEXT_KEY);
+        }
         setContentView(R.layout.activity_main);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_movies);
@@ -78,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         intentToStartDetailActivity.putExtra("rate", jsonMovieData[adapterPosition].getRate());
         intentToStartDetailActivity.putExtra("release", jsonMovieData[adapterPosition].getRelease());
         intentToStartDetailActivity.putExtra("overview", jsonMovieData[adapterPosition].getOverview());
+        intentToStartDetailActivity.putExtra("id", jsonMovieData[adapterPosition].getId());
 
         startActivity(intentToStartDetailActivity);
     }
@@ -101,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         @Override
         protected Movie[] doInBackground(String... params) {
-            if (params.length == 0){
+            if (params.length == 0) {
                 return null;
             }
 
@@ -127,8 +138,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if (movieData != null) {
                 showJsonDataResults();
-                //mMovieAdapter.setMovieData(movieData);
-                mMovieAdapter = new MovieAdapter(movieData,MainActivity.this);
+                mMovieAdapter = new MovieAdapter(movieData, MainActivity.this);
                 mRecyclerView.setAdapter(mMovieAdapter);
             } else {
                 showErrorMessage();
@@ -159,22 +169,56 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             return true;
         }
 
-        if(menuItemSelected == R.id.action_about){
-            Intent startAboutActivity = new Intent(this, AboutActivity.class);
-            startActivity(startAboutActivity);
+        if (menuItemSelected == R.id.action_favorites) {
+            Context context = this;
+            Class destinationClass = FavoritesActivity.class;
+            Intent intentToStartDetailActivity = new Intent(context, destinationClass);
+            startActivity(intentToStartDetailActivity);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    //calculates how many columns can I fit in screen.
+    //calculates how many columns can fit in screen.
     //Source: https://stackoverflow.com/questions/33575731/gridlayoutmanager-how-to-auto-fit-columns
     public static int calculateNoOfColumns(Context context) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
         int noOfColumns = (int) (dpWidth / 180);
         return noOfColumns;
+    }
+
+
+    //Source: https://developer.android.com/guide/components/activities/activity-lifecycle
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        query = savedInstanceState.getString(LIFECYCLE_CALLBACKS_TEXT_KEY);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        String lifecycleSortBy = query;
+        outState.putString(LIFECYCLE_CALLBACKS_TEXT_KEY, lifecycleSortBy);
+        super.onSaveInstanceState(outState);
+    }
+
+    //https://stackoverflow.com/questions/28236390/recyclerview-store-restore-state-between-activities
+    @Override
+    protected void onPause() {
+        mBundleRecyclerViewState = new Bundle();
+        Parcelable listState = mRecyclerView.getLayoutManager().onSaveInstanceState();
+        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mBundleRecyclerViewState != null) {
+            Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
+            mRecyclerView.getLayoutManager().onRestoreInstanceState(listState);
+        }
     }
 
 }

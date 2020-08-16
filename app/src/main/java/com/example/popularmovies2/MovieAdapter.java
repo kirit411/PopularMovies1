@@ -1,4 +1,4 @@
-package com.example.popularmovies1;
+package com.example.popularmovies2;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -8,12 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.popularmovies1.model.Movie;
+import com.example.popularmovies2.model.Movie;
 import com.squareup.picasso.Picasso;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
     //I went through Sunshine's RecyclerView and Click Handlers.
-//Following codes are from Sunshine.
+    //Following codes are from Sunshine.
     private Movie[] mMovieData;
     private final MovieAdapterOnClickHandler mClickHandler;
 
@@ -73,3 +73,4 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         return mMovieData.length;
     }
 }
+
